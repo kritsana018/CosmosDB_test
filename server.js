@@ -2,6 +2,7 @@ const express = require("express");
 const { CosmosClient } = require("@azure/cosmos");
 const dotenv = require("dotenv");
 const path = require("path");
+const { randomUUID } = require("crypto");
 
 dotenv.config();
 const app = express();
@@ -22,24 +23,61 @@ async function initDB() {
 }
 initDB();
 
-// 📩 API: เพิ่ม feedback
+// 📩 API: เพิ่ม feedback (รองรับ fields เพิ่มเติมจาก client)
 app.post("/api/feedback", async (req, res) => {
-  const { name, message } = req.body;
-  if (!name || !message) return res.status(400).json({ error: "Missing fields" });
+  try {
+    const {
+      name,
+      message,
+      email = "",
+      rating = null,
+      category = "",
+      subscribe = false
+    } = req.body;
 
-  const { resource } = await client
-    .database(databaseId)
-    .container(containerId)
-    .items.create({ name, message, createdAt: new Date().toISOString() });
+    if (!name || !message) {
+      return res.status(400).json({ error: "Missing fields: name and message are required" });
+    }
 
-  res.json(resource);
+    // Normalize / validate
+    const item = {
+      id: randomUUID(),
+      name: String(name).trim(),
+      message: String(message).trim(),
+      email: typeof email === "string" ? email.trim() : "",
+      // try convert rating to integer 1-5, otherwise store null
+      rating: (() => {
+        const n = rating === null || rating === "" ? null : Number(rating);
+        return Number.isInteger(n) && n >= 1 && n <= 5 ? n : null;
+      })(),
+      category: typeof category === "string" ? category.trim() : "",
+      subscribe: !!subscribe,
+      createdAt: new Date().toISOString()
+    };
+
+    const { resource } = await client
+      .database(databaseId)
+      .container(containerId)
+      .items.create(item);
+
+    res.json(resource);
+  } catch (err) {
+    console.error("POST /api/feedback error:", err);
+    res.status(500).json({ error: "Failed to save feedback" });
+  }
 });
 
 // 📜 API: ดึง feedback ทั้งหมด
 app.get("/api/feedback", async (req, res) => {
-  const query = "SELECT * FROM c ORDER BY c._ts DESC";
-  const { resources } = await client.database(databaseId).container(containerId).items.query(query).fetchAll();
-  res.json(resources);
+  try {
+    // ใช้ createdAt เพื่อจัดเรียงล่าสุดขึ้นก่อน
+    const query = "SELECT * FROM c ORDER BY c.createdAt DESC";
+    const { resources } = await client.database(databaseId).container(containerId).items.query(query).fetchAll();
+    res.json(resources);
+  } catch (err) {
+    console.error("GET /api/feedback error:", err);
+    res.status(500).json({ error: "Failed to fetch feedback" });
+  }
 });
 
 app.listen(port, () => console.log(`🚀 Server running on port ${port}`));

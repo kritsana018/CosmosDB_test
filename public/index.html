@@ -1,20 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Feedback Cloud App</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <h1>💬 Feedback Form</h1>
-  <form id="feedbackForm">
-    <input type="text" id="name" placeholder="Your name" required />
-    <input type="text" id="message" placeholder="Your message" required />
-    <button type="submit">Submit</button>
-  </form>
+  <main class="container">
+    <header class="header">
+      <h1>💬 Feedback Cloud App</h1>
+      <p class="lead">ส่งความเห็นหรือคะแนนของคุณ — ข้อมูลจะถูกเก็บลง Cosmos DB</p>
+    </header>
 
-  <h2>📋 All Feedback</h2>
-  <ul id="feedbackList"></ul>
+    <section class="form-section">
+      <form id="feedbackForm" class="feedback-form" autocomplete="off">
+        <div class="row">
+          <label for="name">ชื่อ</label>
+          <input type="text" id="name" placeholder="Your name" required />
+        </div>
+
+        <div class="row">
+          <label for="email">อีเมล (ถ้ามี)</label>
+          <input type="email" id="email" placeholder="you@example.com" />
+        </div>
+
+        <div class="row">
+          <label for="category">หมวด</label>
+          <select id="category">
+            <option value="">ทั่วไป</option>
+            <option value="bug">บั๊ก</option>
+            <option value="feature">ฟีเจอร์</option>
+            <option value="support">ขอความช่วยเหลือ</option>
+            <option value="other">อื่น ๆ</option>
+          </select>
+        </div>
+
+        <div class="row small-row">
+          <label for="rating">คะแนน</label>
+          <select id="rating">
+            <option value="">— เลือก —</option>
+            <option value="1">1 ⭐</option>
+            <option value="2">2 ⭐⭐</option>
+            <option value="3">3 ⭐⭐⭐</option>
+            <option value="4">4 ⭐⭐⭐⭐</option>
+            <option value="5">5 ⭐⭐⭐⭐⭐</option>
+          </select>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="subscribe" />
+            ติดตามข่าวสาร
+          </label>
+        </div>
+
+        <div class="row">
+          <label for="message">ข้อความ</label>
+          <textarea id="message" placeholder="เขียนข้อความของคุณ..." required></textarea>
+        </div>
+
+        <div class="row actions">
+          <button type="submit" class="btn">ส่งฟีดแบ็ก</button>
+          <button type="button" id="clearBtn" class="btn ghost" title="ล้างฟอร์ม">ล้าง</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="list-section">
+      <h2>📋 All Feedback</h2>
+      <ul id="feedbackList" class="feedback-list"></ul>
+    </section>
+
+    <footer class="footer">
+      <small>Mini eCatalog / Feedback demo — Cosmos DB</small>
+    </footer>
+  </main>
 
   <script src="script.js"></script>
 </body>
 </html>
+
