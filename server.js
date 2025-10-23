@@ -39,6 +39,11 @@ app.post("/api/feedback", async (req, res) => {
       return res.status(400).json({ error: "Missing fields: name and message are required" });
     }
 
+    //สร้าง id ที่เรียงตามเวลา
+    // ตัวอย่าง: FB-20251023-093015-543
+    const timestamp = new Date();
+    const id = `FB-${timestamp.toISOString().replace(/[-:.TZ]/g, "").slice(0, 14)}-${Math.floor(Math.random() * 1000)}`;
+
     // Normalize / validate
     const item = {
       id: randomUUID(),
