@@ -38,7 +38,7 @@ app.post("/api/feedback", async (req, res) => {
     if (!name || !message) {
       return res.status(400).json({ error: "Missing fields: name and message are required" });
     }
-    
+
     // Normalize / validate
     const item = {
       id: randomUUID(),
@@ -67,6 +67,19 @@ app.post("/api/feedback", async (req, res) => {
   }
 });
 
+// ดึง feedback เดี่ยว (สำหรับตอนกด "แก้ไข")
+app.get("/api/feedback/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { resource } = await container.item(id, id).read();
+    if (!resource) return res.status(404).json({ error: "Not found" });
+    res.json(resource);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Read failed" });
+  }
+});
+
 // 📜 API: ดึง feedback ทั้งหมด
 app.get("/api/feedback", async (req, res) => {
   try {
@@ -77,6 +90,22 @@ app.get("/api/feedback", async (req, res) => {
   } catch (err) {
     console.error("GET /api/feedback error:", err);
     res.status(500).json({ error: "Failed to fetch feedback" });
+  }
+});
+
+
+// อัปเดต feedback
+app.put("/api/feedback/:id", async (req, res) => {
+  const { id } = req.params;
+  const updated = req.body;
+  updated.id = id; // ให้แน่ใจว่า id คงเดิม
+
+  try {
+    const { resource } = await container.item(id, id).replace(updated);
+    res.json(resource);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Update failed" });
   }
 });
 

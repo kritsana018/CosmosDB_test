@@ -7,6 +7,8 @@ const categoryInput = document.getElementById("category");   // เพิ่ม�
 const subscribeCheckbox = document.getElementById("subscribe"); // เพิ่ม checkbox
 const list = document.getElementById("feedbackList");
 
+let editingId = null;
+
 async function loadFeedback() {
   const res = await fetch("/api/feedback");
   const data = await res.json();
@@ -15,8 +17,23 @@ async function loadFeedback() {
     const rating = f.rating ? ` <span>⭐${f.rating}</span>` : "";
     const category = f.category ? ` <em>[${f.category}]</em>` : "";
     const subscribed = f.subscribe ? ` <small>(subscribed)</small>` : "";
-    return `<li><b>${f.name}</b>${email}:${category} ${f.message}${rating}${subscribed}</li>`;
+    return `
+      <li>
+        <b>${f.name}</b>${email}:${category} ${f.message}${rating}${subscribed}
+        <button onclick="editFeedback('${f.id}')">✏️</button>
+      </li>`;
   }).join("");
+}
+async function editFeedback(id) {
+  const res = await fetch(`/api/feedback/${id}`);
+  const f = await res.json();
+  nameInput.value = f.name;
+  messageInput.value = f.message;
+  emailInput.value = f.email || "";
+  ratingInput.value = f.rating || "";
+  categoryInput.value = f.category || "";
+  subscribeCheckbox.checked = !!f.subscribe;
+  editingId = id;
 }
 
 form.addEventListener("submit", async e => {
@@ -33,12 +50,23 @@ form.addEventListener("submit", async e => {
     return;
   }
 
+  const payload = { name, message, email, rating, category, subscribe };
+
+  if (editingId) {
+    // 🟡 ถ้ามี editingId → แก้ไขแทนการเพิ่มใหม่
+    await fetch(`/api/feedback/${editingId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    editingId = null;
+  } else {
   await fetch("/api/feedback", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, message, email, rating, category, subscribe })
   });
-
+ }
   form.reset();
   loadFeedback();
 });
