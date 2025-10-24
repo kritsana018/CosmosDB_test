@@ -69,6 +69,22 @@
 
     <section class="list-section">
       <h2>📋 All Feedback</h2>
+
+      <!-- Template for a feedback item (script can clone this) -->
+      <template id="feedbackItemTemplate">
+        <li class="feedback-item" data-id="">
+          <div class="item-main">
+            <strong class="item-name">Name</strong>
+            <span class="item-category">Category</span>
+            <p class="item-message">Message</p>
+          </div>
+          <div class="item-actions">
+            <button type="button" class="btn ghost edit-btn" title="Edit">Edit</button>
+            <button type="button" class="btn ghost delete-btn" title="Delete">Delete</button>
+          </div>
+        </li>
+      </template>
+
       <ul id="feedbackList" class="feedback-list"></ul>
     </section>
 

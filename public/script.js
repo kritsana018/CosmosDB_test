@@ -5,25 +5,28 @@ const emailInput = document.getElementById("email");         // เพิ่ม�
 const ratingInput = document.getElementById("rating");       // เพิ่มช่อง rating (1-5)
 const categoryInput = document.getElementById("category");   // เพิ่มช่อง category
 const subscribeCheckbox = document.getElementById("subscribe"); // เพิ่ม checkbox
-const list = document.getElementById("feedbackList");
+const feedbackList = document.getElementById('feedbackList');
+const cancelEditBtn = document.getElementById('cancelEditBtn');
 
 let editingId = null;
 
 async function loadFeedback() {
   const res = await fetch("/api/feedback");
   const data = await res.json();
-  list.innerHTML = data.map(f => {
+  feedbackList.innerHTML = data.map(f => {
     const email = f.email ? ` <small>(${f.email})</small>` : "";
     const rating = f.rating ? ` <span>⭐${f.rating}</span>` : "";
     const category = f.category ? ` <em>[${f.category}]</em>` : "";
     const subscribed = f.subscribe ? ` <small>(subscribed)</small>` : "";
     return `
-      <li>
-        <b>${f.name}</b>${email}:${category} ${f.message}${rating}${subscribed}
-        <button onclick="editFeedback('${f.id}')">✏️</button>
+      <li class="feedback-item">
+        <b class="item-name">${f.name}</b>${email}:${category} ${f.message}${rating}${subscribed}
+        <button class="edit-btn" onclick="editFeedback('${f.id}')">✏️</button>
+        <button class="delete-btn">🗑️</button>
       </li>`;
   }).join("");
 }
+
 async function editFeedback(id) {
   const res = await fetch(`/api/feedback/${id}`);
   const f = await res.json();
@@ -34,6 +37,8 @@ async function editFeedback(id) {
   categoryInput.value = f.category || "";
   subscribeCheckbox.checked = !!f.subscribe;
   editingId = id;
+
+  cancelEditBtn.style.display = '';
 }
 
 form.addEventListener("submit", async e => {
