@@ -21,8 +21,6 @@ async function loadFeedback() {
     return `
       <li class="feedback-item">
         <b class="item-name">${f.name}</b>${email}:${category} ${f.message}${rating}${subscribed}
-        <button class="edit-btn" onclick="editFeedback('${f.id}')">✏️</button>
-        <button class="delete-btn">🗑️</button>
       </li>`;
   }).join("");
 }
